@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.event.TransactionalEventListener
 
 @Service
-@Slf4j
 class TripService (
         private val repository: TripRepository,
     ){
@@ -26,7 +25,6 @@ class TripService (
             repository.save(trip)
         }
     }
-
 
     fun abortTrip (tripId: String) {
         repository.findById(tripId).ifPresent {
