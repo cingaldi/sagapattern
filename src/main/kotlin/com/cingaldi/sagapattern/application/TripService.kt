@@ -1,6 +1,7 @@
 package com.cingaldi.sagapattern.application
 
 import com.cingaldi.logger
+import com.cingaldi.sagapattern.domain.events.TripConfirmedEvt
 import com.cingaldi.sagapattern.domain.events.TripCreatedEvt
 import com.cingaldi.sagapattern.domain.models.Trip
 import com.cingaldi.sagapattern.domain.repositories.TripRepository
@@ -35,8 +36,8 @@ class TripService (
         }
     }
 
-    @EventListener
-    fun onTripCreated (evt: TripCreatedEvt) {
-        logger.info("trip was created with id ${evt.tripId}")
-    }
+   @EventListener
+   fun onTripConfirmed(evt: TripConfirmedEvt) {
+       logger.info("dear customer, we are pleased to confirm that your trip with id ${evt.tripId} has been confirmed! Enjoy!")
+   }
 }
