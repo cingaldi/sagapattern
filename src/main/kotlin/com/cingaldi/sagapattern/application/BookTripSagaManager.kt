@@ -33,15 +33,13 @@ class BookTripSagaManager (
         //create saga
         val saga = TripBookingStatus(evt.flightReservationCode, evt.hotelReservationCode, evt.tripId)
 
-        //initiate
-        val  nextAction = saga.start()
-
         //persist
         logger.debug("trip booking started for tripId=${evt.tripId}")
         repository.save(saga)
 
         //send command
-        performNextAction(nextAction, saga)
+        hotelGateway.bookHotel(evt.hotelReservationCode)
+        flightGateway.bookFlight(evt.flightReservationCode)
     }
 
     @EventListener
@@ -82,8 +80,6 @@ class BookTripSagaManager (
 
     private fun performNextAction(nextAction: NextAction, saga : TripBookingStatus) {
         when (nextAction) {
-            BOOK_FLIGHT -> flightGateway.bookFlight(saga.flightCode)
-            BOOK_HOTEL -> hotelGateway.bookHotel(saga.hotelCode)
             CONFIRM_TRIP -> tripService.confirmTrip(saga.tripId)
         }
     }

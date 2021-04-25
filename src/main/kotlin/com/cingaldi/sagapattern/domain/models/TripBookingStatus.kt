@@ -3,6 +3,7 @@ package com.cingaldi.sagapattern.domain.models
 
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.Version
 
 @Entity
 class TripBookingStatus () {
@@ -15,6 +16,9 @@ class TripBookingStatus () {
         private set
     var hotelCode: String = ""
         private set
+
+    @Version
+    private var version: Long = 0
 
     //saga progress data
     private var flightBooked: Boolean = false
