@@ -38,8 +38,8 @@ class BookTripSagaManager (
         repository.save(saga)
 
         //send command
-        hotelGateway.bookHotel(evt.hotelReservationCode)
-        flightGateway.bookFlight(evt.flightReservationCode)
+        performNextAction(BOOK_FLIGHT, saga)
+        performNextAction(BOOK_HOTEL, saga)
     }
 
     @EventListener
@@ -80,6 +80,8 @@ class BookTripSagaManager (
 
     private fun performNextAction(nextAction: NextAction, saga : TripBookingStatus) {
         when (nextAction) {
+            BOOK_FLIGHT -> flightGateway.bookFlight(saga.flightCode)
+            BOOK_HOTEL -> hotelGateway.bookHotel(saga.hotelCode)
             CONFIRM_TRIP -> tripService.confirmTrip(saga.tripId)
         }
     }

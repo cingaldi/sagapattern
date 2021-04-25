@@ -69,10 +69,6 @@ class TripBookingStatus () {
 
         return NextAction.CANCEL_FLIGHT
     }
-
-    fun start(): NextAction {
-        return NextAction.BOOK_FLIGHT
-    }
 }
 
 enum class NextAction {
