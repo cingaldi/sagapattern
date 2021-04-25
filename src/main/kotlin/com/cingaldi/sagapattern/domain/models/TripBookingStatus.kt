@@ -37,7 +37,7 @@ class TripBookingStatus () {
             return NextAction.CONFIRM_TRIP
         }
 
-        return NextAction.BOOK_HOTEL
+        return NextAction.WAIT
     }
 
     fun bookHotel() :NextAction{
@@ -47,7 +47,7 @@ class TripBookingStatus () {
             return NextAction.CONFIRM_TRIP
         }
 
-        return NextAction.BOOK_FLIGHT
+        return NextAction.WAIT
     }
 
     fun unbookFlight(): NextAction {
@@ -78,4 +78,5 @@ enum class NextAction {
     CANCEL_FLIGHT,
     CANCEL_HOTEL,
     ABORT_TRIP,
+    WAIT
 }
