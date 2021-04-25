@@ -1,5 +1,6 @@
 package com.cingaldi.sagapattern.application
 
+import com.cingaldi.commons.flightservice.FlightConfirmedEvent
 import com.cingaldi.commons.flightservice.FlightServiceGateway
 import com.cingaldi.commons.hotelservice.HotelConfirmedEvent
 import com.cingaldi.commons.hotelservice.HotelServiceGateway
@@ -32,20 +33,51 @@ class BookTripSagaManager (
 
         logger.info("trip booking started for tripId=${evt.tripId}")
 
+        //we can start them in parallel and exploit the power of async processes
         hotelGateway.bookHotel(evt.hotelReservationCode)
+        flightGateway.bookFlight(evt.flightReservationCode)
+    }
+
+
+
+    @EventListener
+    fun onFlightConfirmed(evt: FlightConfirmedEvent) {
+        
+        //retrieve saga
+        val saga = repository
+                .findByFlightCode(evt.code)
+                .orElseThrow()
+
+        //update the progress
+        val nextAction = saga.bookFlight()
+
+        logger.info("flight booking with code ${evt.code} was confirmed. Next action=$nextAction")
+        repository.save(saga)
+
+        //send command
+        if (nextAction == CONFIRM_TRIP) {
+            tripService.confirmTrip(saga.tripId)
+        }
     }
 
     @EventListener
     fun onHotelConfirmed(evt: HotelConfirmedEvent) {
-        logger.info("hotel booking with code ${evt.code} was confirmed")
-        val (nextAction, tripId) = repository
+
+        //retrieve saga
+        val saga = repository
                 .findByHotelCode(evt.code)
-                .map { status -> Pair(status.bookHotel(), status.tripId)}
                 .orElseThrow()
 
-        //if (nextAction == CONFIRM_TRIP) {
-            tripService.confirmTrip(tripId)
-        //}
+        //update the progress
+        val nextAction = saga.bookHotel()
+
+        logger.info("hotel booking with code ${evt.code} was confirmed. Next action=$nextAction")
+        repository.save(saga)
+
+        //send command
+        if (nextAction == CONFIRM_TRIP) {
+            tripService.confirmTrip(saga.tripId)
+        }
     }
 }
 

@@ -10,13 +10,15 @@ class HotelServiceGateway (
     ){
 
     fun bookHotel(hotelCode: String) {
-        Thread.sleep(Math.random().toLong() * 1000)
+        Thread {
+            Thread.sleep(Random.nextLong(3000))
 
-        if(Random.nextBoolean()) {
-            publisher.publishEvent(HotelConfirmedEvent(hotelCode))
-        }
+            //TODO uncomment line below if you're ready to play with the unhappy path!
+            if(true) { //if(Random.nextBoolean()) {
+                publisher.publishEvent(HotelConfirmedEvent(hotelCode))
+            }
 
-        publisher.publishEvent(HotelCanceledEvent(hotelCode))
-
+            publisher.publishEvent(HotelCanceledEvent(hotelCode))
+        }.start()
     }
 }

@@ -2,12 +2,11 @@ package com.cingaldi.sagapattern.application
 
 import com.cingaldi.logger
 import com.cingaldi.sagapattern.domain.events.TripConfirmedEvt
-import com.cingaldi.sagapattern.domain.events.TripCreatedEvt
 import com.cingaldi.sagapattern.domain.models.Trip
 import com.cingaldi.sagapattern.domain.repositories.TripRepository
 import lombok.extern.slf4j.Slf4j
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import org.springframework.transaction.event.TransactionalEventListener
 
 @Service
 @Slf4j
@@ -36,7 +35,7 @@ class TripService (
         }
     }
 
-   @EventListener
+   @TransactionalEventListener
    fun onTripConfirmed(evt: TripConfirmedEvt) {
        logger.info("dear customer, we are pleased to confirm that your trip with id ${evt.tripId} has been confirmed! Enjoy!")
    }

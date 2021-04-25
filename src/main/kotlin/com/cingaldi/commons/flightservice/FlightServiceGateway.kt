@@ -1,18 +1,25 @@
 package com.cingaldi.commons.flightservice
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 @Service
-class FlightServiceGateway {
+class FlightServiceGateway (
+        private val publisher: ApplicationEventPublisher
+    ){
 
     fun bookFlight(flightCode: String) {
-        Thread.sleep(Math.random().toLong() * 1000)
+        Thread{
+            Thread.sleep(Random.nextLong(3000))
 
-        if(Random.nextBoolean()) {
-            //emit booked event
-        }
+            //TODO uncomment line below if you're ready to play with the unhappy path!
+            if(true) { //if(Random.nextBoolean()) {
+                publisher.publishEvent(FlightConfirmedEvent(flightCode))
+            }
 
-        //emit non booked event
+            publisher.publishEvent(FlightCanceledEvent(flightCode))
+
+        }.start()
     }
 }
