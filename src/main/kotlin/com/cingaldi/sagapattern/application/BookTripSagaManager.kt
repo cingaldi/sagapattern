@@ -21,7 +21,6 @@ class BookTripSagaManager (
             private val tripService: TripService
         ) {
 
-
     private val logger = logger<BookTripSagaManager>()
 
     /**
@@ -44,8 +43,6 @@ class BookTripSagaManager (
         //send command
         performNextAction(nextAction, saga)
     }
-
-
 
     @EventListener
     fun onFlightConfirmed(evt: FlightConfirmedEvent) {
