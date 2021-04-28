@@ -1,12 +1,16 @@
 package com.cingaldi.sagapattern.domain.models
 
 
+import com.cingaldi.commons.Saga
+import com.cingaldi.sagapattern.application.commands.BookFlightCmd
+import com.cingaldi.sagapattern.application.commands.BookHotelCmd
+import com.cingaldi.sagapattern.application.commands.ConfirmTripCmd
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Version
 
 @Entity
-class TripBookingStatus () {
+class TripBookingStatus(): Saga() {
 
     //association data
     @Id
@@ -17,6 +21,7 @@ class TripBookingStatus () {
     var hotelCode: String = ""
         private set
 
+    //this saga supports concurrent events :)
     @Version
     private var version: Long = 0
 
@@ -30,53 +35,41 @@ class TripBookingStatus () {
         tripId = _tripId
     }
 
-    fun bookFlight() : NextAction {
+    fun start() {
+        dispatchCommand(BookHotelCmd(hotelCode))
+        dispatchCommand(BookFlightCmd(flightCode))
+    }
+
+    fun bookFlight() {
         flightBooked = true
 
         if(hotelBooked) {
-            return NextAction.CONFIRM_TRIP
+            dispatchCommand(ConfirmTripCmd(tripId))
         }
-
-        return NextAction.WAIT
     }
 
-    fun bookHotel() :NextAction{
+    fun bookHotel() {
         hotelBooked = true
 
         if(flightBooked) {
-            return NextAction.CONFIRM_TRIP
+            dispatchCommand(ConfirmTripCmd(tripId))
         }
-
-        return NextAction.WAIT
     }
 
-    fun unbookFlight(): NextAction {
+    fun unbookFlight() {
         flightBooked = false
 
         if(!hotelBooked) {
-            return NextAction.ABORT_TRIP
+            // just abort trip ;)
         }
 
-        return NextAction.CANCEL_HOTEL
+        // need to cancel the hotel as well ;)
+
     }
 
-    fun unbookHotel(): NextAction {
+    fun unbookHotel() {
         hotelBooked = false
 
-        if(!flightBooked) {
-            return NextAction.ABORT_TRIP
-        }
-
-        return NextAction.CANCEL_FLIGHT
+        //you know how to do it
     }
-}
-
-enum class NextAction {
-    BOOK_FLIGHT,
-    BOOK_HOTEL,
-    CONFIRM_TRIP,
-    CANCEL_FLIGHT,
-    CANCEL_HOTEL,
-    ABORT_TRIP,
-    WAIT
 }

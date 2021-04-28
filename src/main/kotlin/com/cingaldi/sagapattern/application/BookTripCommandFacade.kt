@@ -2,6 +2,7 @@ package com.cingaldi.sagapattern.application
 
 import com.cingaldi.commons.flightservice.FlightServiceGateway
 import com.cingaldi.commons.hotelservice.HotelServiceGateway
+import com.cingaldi.logger
 import com.cingaldi.sagapattern.application.commands.BookFlightCmd
 import com.cingaldi.sagapattern.application.commands.BookHotelCmd
 import com.cingaldi.sagapattern.application.commands.ConfirmTripCmd
@@ -14,19 +15,27 @@ class BookTripCommandFacade(
         private val tripService: TripService
     ) {
 
-    fun apply(cmd: BookHotelCmd) : BookTripCommandFacade{
+    fun dispatch (cmd: Any): BookTripCommandFacade {
+
+        when(cmd) {
+            is BookFlightCmd -> apply(cmd)
+            is BookHotelCmd -> apply(cmd)
+            is ConfirmTripCmd -> apply(cmd)
+            else -> throw Exception("command handler not defined for command type ${cmd.javaClass}")
+        }
+
+        return this;
+    }
+
+    private fun apply(cmd: BookHotelCmd){
         hotelGateway.bookHotel(cmd.hotelCode)
-        return this;
     }
 
-
-    fun apply(cmd: BookFlightCmd) : BookTripCommandFacade{
+    private fun apply(cmd: BookFlightCmd){
         flightGateway.bookFlight(cmd.flightCode)
-        return this;
     }
 
-    fun apply(cmd: ConfirmTripCmd) : BookTripCommandFacade{
+    private fun apply(cmd: ConfirmTripCmd){
         tripService.confirmTrip(cmd.tripId)
-        return this;
     }
 }

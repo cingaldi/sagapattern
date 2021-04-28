@@ -4,7 +4,6 @@ import com.cingaldi.logger
 import com.cingaldi.sagapattern.domain.events.TripConfirmedEvt
 import com.cingaldi.sagapattern.domain.models.Trip
 import com.cingaldi.sagapattern.domain.repositories.TripRepository
-import lombok.extern.slf4j.Slf4j
 import org.springframework.stereotype.Service
 import org.springframework.transaction.event.TransactionalEventListener
 

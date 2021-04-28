@@ -1,16 +1,9 @@
 package com.cingaldi.sagapattern.application
 
 import com.cingaldi.commons.flightservice.FlightConfirmedEvent
-import com.cingaldi.commons.flightservice.FlightServiceGateway
 import com.cingaldi.commons.hotelservice.HotelConfirmedEvent
-import com.cingaldi.commons.hotelservice.HotelServiceGateway
 import com.cingaldi.logger
-import com.cingaldi.sagapattern.application.commands.BookFlightCmd
-import com.cingaldi.sagapattern.application.commands.BookHotelCmd
-import com.cingaldi.sagapattern.application.commands.ConfirmTripCmd
 import com.cingaldi.sagapattern.domain.events.TripCreatedEvt
-import com.cingaldi.sagapattern.domain.models.NextAction
-import com.cingaldi.sagapattern.domain.models.NextAction.*
 import com.cingaldi.sagapattern.domain.models.TripBookingStatus
 import com.cingaldi.sagapattern.domain.repositories.TripBookingStatusRepository
 import org.springframework.context.event.EventListener
@@ -34,14 +27,16 @@ class BookTripSagaManager (
         //create saga
         val saga = TripBookingStatus(evt.flightReservationCode, evt.hotelReservationCode, evt.tripId)
 
+        saga.start()
+
         //persist
         logger.debug("trip booking started for tripId=${evt.tripId}")
-        repository.save(saga)
 
-        //send command
-        commandFacade
-                .apply(BookFlightCmd(saga.flightCode))
-                .apply(BookHotelCmd(saga.hotelCode))
+        repository.save(saga)
+        saga.commands().forEach {
+            //send command
+            cmd -> commandFacade.dispatch(cmd)
+        }
     }
 
     @EventListener
@@ -51,13 +46,16 @@ class BookTripSagaManager (
         val saga = repository.findByFlightCode(evt.code).orElseThrow()
 
         //update the progress
-        val nextAction = saga.bookFlight()
+        saga.bookFlight()
+
+        //persist
+        logger.debug("flight booking with code ${evt.code} was confirmed")
 
         repository.save(saga)
-
-        //send command
-        logger.debug("flight booking with code ${evt.code} was confirmed. Next action=$nextAction")
-        performNextAction(nextAction, saga)
+        saga.commands().forEach {
+            //send command
+            cmd -> commandFacade.dispatch(cmd)
+        }
     }
 
     @EventListener
@@ -67,18 +65,15 @@ class BookTripSagaManager (
         val saga = repository.findByHotelCode(evt.code).orElseThrow()
 
         //update the progress
-        val nextAction = saga.bookHotel()
+        saga.bookHotel()
+
+        //persist
+        logger.debug("hotel booking with code ${evt.code} was confirmed")
 
         repository.save(saga)
-
-        //send command
-        logger.debug("hotel booking with code ${evt.code} was confirmed. Next action=$nextAction")
-        performNextAction(nextAction, saga)
-    }
-
-    private fun performNextAction(nextAction: NextAction, saga : TripBookingStatus) {
-        when (nextAction) {
-            CONFIRM_TRIP -> commandFacade.apply(ConfirmTripCmd(saga.tripId))
+        saga.commands().forEach {
+            //send command
+            cmd -> commandFacade.dispatch(cmd)
         }
     }
 }
