@@ -18,24 +18,12 @@ class BookTripCommandFacade(
     fun dispatch (cmd: Any): BookTripCommandFacade {
 
         when(cmd) {
-            is BookFlightCmd -> apply(cmd)
-            is BookHotelCmd -> apply(cmd)
-            is ConfirmTripCmd -> apply(cmd)
+            is BookFlightCmd -> flightGateway.bookFlight(cmd.flightCode)
+            is BookHotelCmd -> hotelGateway.bookHotel(cmd.hotelCode)
+            is ConfirmTripCmd -> tripService.confirmTrip(cmd.tripId)
             else -> throw Exception("command handler not defined for command type ${cmd.javaClass}")
         }
 
         return this;
-    }
-
-    private fun apply(cmd: BookHotelCmd){
-        hotelGateway.bookHotel(cmd.hotelCode)
-    }
-
-    private fun apply(cmd: BookFlightCmd){
-        flightGateway.bookFlight(cmd.flightCode)
-    }
-
-    private fun apply(cmd: ConfirmTripCmd){
-        tripService.confirmTrip(cmd.tripId)
     }
 }
