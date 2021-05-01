@@ -31,12 +31,7 @@ class BookTripSagaManager (
 
         //persist
         logger.debug("trip booking started for tripId=${evt.tripId}")
-
-        repository.save(saga)
-        saga.commands().forEach {
-            //send command
-            cmd -> commandFacade.dispatch(cmd)
-        }
+        update(saga)
     }
 
     @EventListener
@@ -50,12 +45,7 @@ class BookTripSagaManager (
 
         //persist
         logger.debug("flight booking with code ${evt.code} was confirmed")
-
-        repository.save(saga)
-        saga.commands().forEach {
-            //send command
-            cmd -> commandFacade.dispatch(cmd)
-        }
+        update(saga)
     }
 
     @EventListener
@@ -69,12 +59,17 @@ class BookTripSagaManager (
 
         //persist
         logger.debug("hotel booking with code ${evt.code} was confirmed")
+        update(saga)
+    }
 
+    private fun update(saga: TripBookingStatus) {
         repository.save(saga)
         saga.commands().forEach {
             //send command
-            cmd -> commandFacade.dispatch(cmd)
+            cmd ->
+            commandFacade.dispatch(cmd)
         }
+        saga.clearCommands()
     }
 }
 

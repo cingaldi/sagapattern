@@ -12,4 +12,8 @@ abstract class Saga {
     fun commands() : List<Any> {
         return this.commands
     }
+
+    fun clearCommands() {
+        this.commands.clear()
+    }
 }
