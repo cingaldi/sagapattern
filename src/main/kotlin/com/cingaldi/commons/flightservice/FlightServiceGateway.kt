@@ -1,5 +1,7 @@
 package com.cingaldi.commons.flightservice
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -9,17 +11,16 @@ class FlightServiceGateway (
         private val publisher: ApplicationEventPublisher
     ){
 
-    fun bookFlight(flightCode: String) {
-        Thread{
-            Thread.sleep(Random.nextLong(3000))
+    suspend fun bookFlight(flightCode: String) {
 
-            //TODO uncomment line below if you're ready to play with the unhappy path!
-            if(true) { //if(Random.nextBoolean()) {
-                publisher.publishEvent(FlightConfirmedEvent(flightCode))
-            }
+        delay(Random.nextLong(3000))
 
-            publisher.publishEvent(FlightCanceledEvent(flightCode))
+        //TODO uncomment line below if you're ready to play with the unhappy path!
+        if(true) { //if(Random.nextBoolean()) {
+            publisher.publishEvent(FlightConfirmedEvent(flightCode))
+        }
 
-        }.start()
+        publisher.publishEvent(FlightCanceledEvent(flightCode))
+        yield()
     }
 }

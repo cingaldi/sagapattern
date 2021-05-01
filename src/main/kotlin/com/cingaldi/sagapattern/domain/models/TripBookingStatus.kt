@@ -36,8 +36,8 @@ class TripBookingStatus(): Saga() {
     }
 
     fun start() {
-        dispatchCommand(BookHotelCmd(hotelCode))
         dispatchCommand(BookFlightCmd(flightCode))
+        dispatchCommand(BookHotelCmd(hotelCode))
     }
 
     fun bookFlight() {

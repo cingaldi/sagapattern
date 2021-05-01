@@ -6,6 +6,7 @@ import com.cingaldi.logger
 import com.cingaldi.sagapattern.application.commands.BookFlightCmd
 import com.cingaldi.sagapattern.application.commands.BookHotelCmd
 import com.cingaldi.sagapattern.application.commands.ConfirmTripCmd
+import kotlinx.coroutines.*
 import org.springframework.stereotype.Component
 
 @Component
@@ -15,11 +16,11 @@ class BookTripCommandFacade(
         private val tripService: TripService
     ) {
 
-    fun dispatch (cmd: Any): BookTripCommandFacade {
+    fun dispatch(cmd: Any): BookTripCommandFacade {
 
-        when(cmd) {
-            is BookFlightCmd -> flightGateway.bookFlight(cmd.flightCode)
-            is BookHotelCmd -> hotelGateway.bookHotel(cmd.hotelCode)
+        when (cmd) {
+            is BookFlightCmd -> GlobalScope.launch { flightGateway.bookFlight(cmd.flightCode) }
+            is BookHotelCmd -> GlobalScope.launch { hotelGateway.bookHotel(cmd.hotelCode) }
             is ConfirmTripCmd -> tripService.confirmTrip(cmd.tripId)
             else -> throw Exception("command handler not defined for command type ${cmd.javaClass}")
         }
