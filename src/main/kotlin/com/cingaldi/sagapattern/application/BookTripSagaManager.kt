@@ -22,7 +22,7 @@ class BookTripSagaManager (
      *  and make the first move: flight and hotel booking
      */
     @EventListener
-    fun onTripCreated(evt: TripCreatedEvt) {
+    fun on(evt: TripCreatedEvt) {
 
         //create saga
         val saga = TripBookingStatus(evt.flightReservationCode, evt.hotelReservationCode, evt.tripId)
@@ -35,7 +35,7 @@ class BookTripSagaManager (
     }
 
     @EventListener
-    fun onFlightConfirmed(evt: FlightConfirmedEvent) {
+    fun on(evt: FlightConfirmedEvent) {
         
         //retrieve saga
         val saga = repository.findByFlightCode(evt.code).orElseThrow()
@@ -49,7 +49,7 @@ class BookTripSagaManager (
     }
 
     @EventListener
-    fun onHotelConfirmed(evt: HotelConfirmedEvent) {
+    fun on(evt: HotelConfirmedEvent) {
 
         //retrieve saga
         val saga = repository.findByHotelCode(evt.code).orElseThrow()

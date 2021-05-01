@@ -33,14 +33,14 @@ internal class BookTripSagaManagerTest () {
 
     @Test
     fun `given trip - when created - then book flight` () {
-        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.on(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
         verify(commandFacade).dispatch(any<BookFlightCmd>())
     }
 
 
     @Test
     fun `given trip - when created - then book hotel` () {
-        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.on(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
         verify(commandFacade).dispatch(any<BookHotelCmd>())
     }
 
@@ -48,11 +48,11 @@ internal class BookTripSagaManagerTest () {
     fun `given flight booked - when hotel booked - then confirm trip` () {
 
         //given
-        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
-        sut.onFlightConfirmed(FlightConfirmedEvent(FLIGHT_CODE))
+        sut.on(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.on(FlightConfirmedEvent(FLIGHT_CODE))
 
         //when
-        sut.onHotelConfirmed(HotelConfirmedEvent(HOTEL_CODE))
+        sut.on(HotelConfirmedEvent(HOTEL_CODE))
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
@@ -63,11 +63,11 @@ internal class BookTripSagaManagerTest () {
     fun `given hotel booked - when flight booked - then confirm trip` () {
 
         //given
-        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
-        sut.onHotelConfirmed(HotelConfirmedEvent(HOTEL_CODE))
+        sut.on(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.on(HotelConfirmedEvent(HOTEL_CODE))
 
         //when
-        sut.onFlightConfirmed(FlightConfirmedEvent(FLIGHT_CODE))
+        sut.on(FlightConfirmedEvent(FLIGHT_CODE))
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
