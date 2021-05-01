@@ -56,7 +56,6 @@ internal class BookTripSagaManagerTest () {
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
-
     }
 
     @Test
@@ -71,6 +70,5 @@ internal class BookTripSagaManagerTest () {
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
-
     }
 }
