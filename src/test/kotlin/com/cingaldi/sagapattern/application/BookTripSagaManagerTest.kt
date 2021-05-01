@@ -15,8 +15,15 @@ import org.junit.jupiter.api.Test
 
 internal class BookTripSagaManagerTest () {
 
+    //fixtures
+    val TRIP_ID : String = "aaa"
+    val FLIGHT_CODE: String = "bbb"
+    val HOTEL_CODE: String = "ccc"
+
+    //deps
     private var commandFacade: BookTripCommandFacade = mock()
 
+    //sut
     private lateinit var sut: BookTripSagaManager
 
     @BeforeEach
@@ -26,14 +33,14 @@ internal class BookTripSagaManagerTest () {
 
     @Test
     fun `given trip - when created - then book flight` () {
-        sut.onTripCreated(TripCreatedEvt("a","b", "c"))
+        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
         verify(commandFacade).dispatch(any<BookFlightCmd>())
     }
 
 
     @Test
     fun `given trip - when created - then book hotel` () {
-        sut.onTripCreated(TripCreatedEvt("a","b", "c"))
+        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
         verify(commandFacade).dispatch(any<BookHotelCmd>())
     }
 
@@ -41,11 +48,11 @@ internal class BookTripSagaManagerTest () {
     fun `given flight booked - when hotel booked - then confirm trip` () {
 
         //given
-        sut.onTripCreated(TripCreatedEvt("a","b", "c"))
-        sut.onFlightConfirmed(FlightConfirmedEvent("b"))
+        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.onFlightConfirmed(FlightConfirmedEvent(FLIGHT_CODE))
 
         //when
-        sut.onHotelConfirmed(HotelConfirmedEvent("c"))
+        sut.onHotelConfirmed(HotelConfirmedEvent(HOTEL_CODE))
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
@@ -56,11 +63,11 @@ internal class BookTripSagaManagerTest () {
     fun `given hotel booked - when flight booked - then confirm trip` () {
 
         //given
-        sut.onTripCreated(TripCreatedEvt("a","b", "c"))
-        sut.onHotelConfirmed(HotelConfirmedEvent("c"))
+        sut.onTripCreated(TripCreatedEvt(TRIP_ID, FLIGHT_CODE, HOTEL_CODE))
+        sut.onHotelConfirmed(HotelConfirmedEvent(HOTEL_CODE))
 
         //when
-        sut.onFlightConfirmed(FlightConfirmedEvent("b"))
+        sut.onFlightConfirmed(FlightConfirmedEvent(FLIGHT_CODE))
 
         //then
         verify(commandFacade).dispatch(any<ConfirmTripCmd>())
