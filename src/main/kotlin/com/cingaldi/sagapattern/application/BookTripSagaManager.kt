@@ -42,8 +42,8 @@ class BookTripSagaManager (
         //set deadline
         scheduleDeadline(6000, {
             repository.findByHotelCode(evt.hotelReservationCode)
-        },{
-            logger.debug("process still ongoing. Wrap it up somehow!!!!")
+        },{ foundSaga ->
+            logger.debug("trip booking with tripId=${foundSaga.tripId} still ongoing. Wrap it up somehow!!!!")
         })
     }
 
