@@ -45,6 +45,7 @@ class TripBookingStatus(): Saga() {
 
         if(hotelBooked) {
             dispatchCommand(ConfirmTripCmd(tripId))
+            complete()
         }
     }
 
@@ -53,6 +54,7 @@ class TripBookingStatus(): Saga() {
 
         if(flightBooked) {
             dispatchCommand(ConfirmTripCmd(tripId))
+            complete()
         }
     }
 

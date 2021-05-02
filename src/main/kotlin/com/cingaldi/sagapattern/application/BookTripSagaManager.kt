@@ -1,11 +1,15 @@
 package com.cingaldi.sagapattern.application
 
+import com.cingaldi.commons.Saga
 import com.cingaldi.commons.flightservice.FlightConfirmedEvent
 import com.cingaldi.commons.hotelservice.HotelConfirmedEvent
 import com.cingaldi.logger
 import com.cingaldi.sagapattern.domain.events.TripCreatedEvt
 import com.cingaldi.sagapattern.domain.models.TripBookingStatus
 import com.cingaldi.sagapattern.domain.repositories.TripBookingStatusRepository
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 
@@ -32,6 +36,9 @@ class BookTripSagaManager (
         //persist
         logger.debug("trip booking started for tripId=${evt.tripId}")
         update(saga)
+
+        //set deadline
+        GlobalScope.launch { scheduleDeadline(saga.hotelCode, 6000) }
     }
 
     @EventListener
@@ -70,6 +77,20 @@ class BookTripSagaManager (
             commandFacade.dispatch(cmd)
         }
         saga.clearCommands()
+    }
+
+    /**
+     *  notice! this way to schedule a delayed task is not safe at all!
+     *  the scheduling won't survive to a service reboot
+     */
+    private suspend fun scheduleDeadline(hotelCode: String, delayMillis: Long) {
+        delay(delayMillis)
+        repository.findByHotelCode(hotelCode).ifPresent { saga ->
+            if(!saga.isCompleted()) {
+                logger.debug("process still ongoing. Wrap it up somehow!!!!")
+            }
+        }
+
     }
 }
 
