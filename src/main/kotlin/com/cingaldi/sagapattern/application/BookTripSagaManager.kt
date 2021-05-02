@@ -8,10 +8,12 @@ import com.cingaldi.sagapattern.domain.events.TripCreatedEvt
 import com.cingaldi.sagapattern.domain.models.TripBookingStatus
 import com.cingaldi.sagapattern.domain.repositories.TripBookingStatusRepository
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class BookTripSagaManager (
@@ -38,7 +40,11 @@ class BookTripSagaManager (
         update(saga)
 
         //set deadline
-        GlobalScope.launch { scheduleDeadline(saga.hotelCode, 6000) }
+        scheduleDeadline(6000, {
+            repository.findByHotelCode(evt.hotelReservationCode)
+        },{
+            logger.debug("process still ongoing. Wrap it up somehow!!!!")
+        })
     }
 
     @EventListener
@@ -79,18 +85,25 @@ class BookTripSagaManager (
         saga.clearCommands()
     }
 
-    /**
-     *  notice! this way to schedule a delayed task is not safe at all!
-     *  the scheduling won't survive to a service reboot
-     */
-    private suspend fun scheduleDeadline(hotelCode: String, delayMillis: Long) {
+}
+
+
+/**
+ *  notice! this way to schedule a delayed task is not safe at all!
+ *  the scheduling won't survive to a service reboot
+ *
+ *  @return a Job to cancel the deadline.
+ *
+ *  TODO: give the deadline a name and memorize the job in a disctionary in order to fetch e deadline job by name
+ */
+fun <T : Saga> scheduleDeadline(delayMillis: Long, findSaga: () -> Optional<T>, perform: (T) -> Unit) : Job {
+    return GlobalScope.launch {
         delay(delayMillis)
-        repository.findByHotelCode(hotelCode).ifPresent { saga ->
+        findSaga().ifPresent{ saga ->
             if(!saga.isCompleted()) {
-                logger.debug("process still ongoing. Wrap it up somehow!!!!")
+                perform(saga)
             }
         }
-
     }
 }
 
