@@ -10,6 +10,8 @@ import java.util.*
  *  notice! this way to schedule a delayed task is not safe at all!
  *  the scheduling won't survive to a service reboot
  *
+ *  accepts two callbacks that define how to retrieve the saga and what action to perform next
+ *
  *  @return a Job to cancel the deadline.
  *
  *  TODO: give the deadline a name and memorize the job in a dictionary in order to fetch e deadline job by name
